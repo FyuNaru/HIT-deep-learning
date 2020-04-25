@@ -8,6 +8,8 @@ import torch.nn.functional as F
 batch_size = 16
 # epoch 的数目
 n_epochs = 10
+# 模型保存位置
+path = "model.pt"
 
 #读取数据
 train_data = datasets.MNIST(root="./data", train=True, download=True,transform=transforms.ToTensor())
@@ -64,7 +66,6 @@ def train():
         # 每遍历一遍数据集，测试一下准确率
         test()
     #最后将模型保存
-    path = "model.pt"
     torch.save(model, path)
 
 #测试程序
@@ -85,10 +86,15 @@ def test():
             100 * correct / total))
     return 100.0 * correct / total
 
-model = MLP()
-#将模型放到GPU上
-model = model.cuda()
-train()
+try:
+    model = torch.load(path).cuda()
+    test()
+except FileNotFoundError:
+    model = MLP()
+    # 将模型放到GPU上
+    model = model.cuda()
+    train()
+
 
 
 
